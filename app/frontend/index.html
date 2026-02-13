@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to SQL Agent</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="main-container">
+        <header>
+            <div class="badge">AI Powered</div>
+            <h1>Text to SQL Agent</h1>
+            <p class="subtitle">Get insights about your data in Natural Language.</p>
+        </header>
+
+        <div class="input-section">
+            <textarea id="queryInput" placeholder="e.g., Show me the top 5 customers by Total Spend..."></textarea>
+
+            <div class="controls">
+                <button id="runBtn" onclick="runQuery()">
+                    <span>Get Insights</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="error" class="error-message"></div>
+
+        <div id="tableContainer" class="table-wrapper">
+        </div>
+    </div>
+
+    <script>
+        async function runQuery() {
+            const query = document.getElementById("queryInput").value;
+            const errorDiv = document.getElementById("error");
+            const tableContainer = document.getElementById("tableContainer");
+            const button = document.getElementById("runBtn");
+
+            // Reset UI
+            errorDiv.style.display = 'none';
+            errorDiv.innerText = "";
+            tableContainer.innerHTML = "";
+
+            if (!query.trim()) {
+                showError("Please enter a query first.");
+                return;
+            }
+
+            // Loading State
+            const originalText = button.innerHTML;
+            button.innerHTML = "<span>Processing...</span>";
+            button.classList.add("loading");
+            button.disabled = true;
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/ai/query", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    showError(data.error);
+                } else if (!data.result || data.result.length === 0) {
+                    tableContainer.innerHTML = `<div class="empty-state">No results found for that query.</div>`;
+                } else {
+                    renderTable(data.result);
+                }
+
+            } catch (err) {
+                console.error(err);
+                showError("Failed to connect to the AI API. Is the server running?");
+            } finally {
+                // Reset Button
+                button.innerHTML = originalText;
+                button.classList.remove("loading");
+                button.disabled = false;
+            }
+        }
+
+        function showError(msg) {
+            const errorDiv = document.getElementById("error");
+            errorDiv.innerText = msg;
+            errorDiv.style.display = 'block';
+        }
+
+        function renderTable(data) {
+            const table = document.createElement("table");
+            const thead = document.createElement("thead");
+            const tbody = document.createElement("tbody");
+
+            // Create Headers
+            const headers = Object.keys(data[0]);
+            const headerRow = document.createElement("tr");
+            headers.forEach(header => {
+                const th = document.createElement("th");
+                th.innerText = header.replace(/_/g, ' ').toUpperCase(); // Format headers nicely
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+
+            // Create Rows
+            data.forEach(row => {
+                const tr = document.createElement("tr");
+                headers.forEach(header => {
+                    const td = document.createElement("td");
+                    td.innerText = row[header];
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+
+            table.appendChild(thead);
+            table.appendChild(tbody);
+
+            // Append to container
+            const container = document.getElementById("tableContainer");
+            container.appendChild(table);
+        }
+    </script>
+
+</body>
+
+</html>

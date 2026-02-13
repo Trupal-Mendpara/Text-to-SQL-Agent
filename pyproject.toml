@@ -1,0 +1,19 @@
+[project]
+name = "text-to-sql"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.128.0",
+    "ipykernel>=7.1.0",
+    "langchain>=1.2.6",
+    "langchain-groq>=1.1.2",
+    "langchain-huggingface>=1.2.0",
+    "langchain-ollama>=1.0.1",
+    "langgraph>=1.0.6",
+    "psycopg2-binary>=2.9.11",
+    "python-dotenv>=1.2.1",
+    "sqlalchemy>=2.0.45",
+    "uvicorn>=0.40.0",
+]
