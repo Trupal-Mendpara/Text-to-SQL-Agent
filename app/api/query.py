@@ -1,20 +1,22 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from app.graph.graph_structure import workflow
+from app.workflows.sql_workflow.graph_structure import workflow
 
-router = APIRouter(prefix="/ai", tags=["AI"])
+query_router = APIRouter(prefix="/ai", tags=["AI"])
 
 class QueryRequest(BaseModel):
     query: str
 
-@router.post("/query", description="Post a query to get the SQL query and the result")
+@query_router.post("/query", description="Post a query to get the SQL query and the result")
 def generate_sql(req: QueryRequest):
     state = {
         "query": req.query,
         "schema": None,
         "sql": None,
         "result": None,
-        "plan": None
+        "plan": None,
+        "error": None,
+        "retry": -1
     }
 
     result = workflow.invoke(state)
@@ -24,5 +26,7 @@ def generate_sql(req: QueryRequest):
         "schema": result["schema"],
         "plan": result["plan"],
         "generated_sql": result["sql"],
-        "result": result["result"]
+        "result": result["result"],
+        "error": result["error"],
+        "retry": result["retry"],
     }

@@ -1,0 +1,9 @@
+{
+    "dependencies": [
+        "."
+    ],
+    "graphs": {
+        "Text-to-SQL Agent": "app.graph.graph_structure:workflow"
+    },
+    "env": ".env"
+}

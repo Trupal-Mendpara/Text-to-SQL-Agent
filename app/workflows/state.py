@@ -6,3 +6,5 @@ class TextToSQL(TypedDict):
     sql: Optional[str]
     result: Optional[List[Dict[str, Any]]]
     plan: Optional[str]
+    error: Optional[str]
+    retry: Optional[int]

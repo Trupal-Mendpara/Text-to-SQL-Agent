@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.query import router as query_router
+from app.api.query import query_router
 
 app = FastAPI(title="Text-to-SQL")
 

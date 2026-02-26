@@ -14,11 +14,12 @@
     <div class="main-container">
         <header>
             <div class="badge">AI Powered</div>
-            <h1>Text to SQL Agent</h1>
+            <h1>Text to SQL Agent 🤖</h1>
             <p class="subtitle">Get insights about your data in Natural Language.</p>
         </header>
 
         <div class="input-section">
+            <p><strong>Enter the natural language query below ⬇️</strong></p>
             <textarea id="queryInput" placeholder="e.g., Show me the top 5 customers by Total Spend..."></textarea>
 
             <div class="controls">
@@ -65,11 +66,22 @@
                 });
 
                 const data = await response.json();
+                if (data.plan == "INVALID") {
+                    showError("It seems like your query is not valid. Please provide a valid natural language query.");
+                }
+                else if (data.plan == "INCOMPLETE") {
+                    showError("Please provide more information about the query.");
+                }
+                else if (data.plan == "UNSAFE") {
+                    showError("It seems like you are trying to change the data. Please provide only READ queries.");
+                }
 
-                if (data.error) {
-                    showError(data.error);
-                } else if (!data.result || data.result.length === 0) {
-                    tableContainer.innerHTML = `<div class="empty-state">No results found for that query.</div>`;
+                else if (data.error) {
+                    showError("Please give more information about the query.");
+                }
+
+                else if (!data.result || data.result.length === 0) {
+                    tableContainer.innerHTML = `<div class="empty-state">No results found for that query.<br>Please check is there any spelling mistake in the query.</div>`;
                 } else {
                     renderTable(data.result);
                 }
