@@ -1,8 +1,8 @@
 from langchain_core.prompts import  PromptTemplate
 from app.workflows.llm import llm_sql_generator
-from app.workflows.state import TextToSQL
+from app.workflows.sql_workflow.sql_state import sql_state
 
-def sql_generator(state: TextToSQL) -> TextToSQL:
+def sql_generator(state: sql_state) -> sql_state:
 
     plan = state["plan"]
     schema = state["schema"]

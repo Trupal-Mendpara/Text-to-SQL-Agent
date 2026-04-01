@@ -5,8 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text to SQL Agent</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/static/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8"></script>
 </head>
 
 <body>
@@ -17,6 +18,8 @@
             <h1>Text to SQL Agent 🤖</h1>
             <p class="subtitle">Get insights about your data in Natural Language.</p>
         </header>
+
+
 
         <div class="input-section">
             <p><strong>Enter the natural language query below ⬇️</strong></p>
@@ -31,21 +34,36 @@
 
         <div id="error" class="error-message"></div>
 
-        <div id="tableContainer" class="table-wrapper">
+        <div id="tableContainer" class="table-wrapper"></div>
+
+        <div id="vizControls" class="viz-controls" style="display: none;">
+            <button id="vizBtn" onclick="generateChart()" class="btn-secondary">
+                <span>📊 Generate Chart</span>
+            </button>
         </div>
+
+        <div id="chartContainer" class="chart-wrapper" style="display: none;"></div>
     </div>
 
     <script>
+        // We only store the thread ID globally to act as the key for LangGraph's memory
+        let currentThreadId = null;
+
         async function runQuery() {
             const query = document.getElementById("queryInput").value;
             const errorDiv = document.getElementById("error");
             const tableContainer = document.getElementById("tableContainer");
+            const vizControls = document.getElementById("vizControls");
+            const chartContainer = document.getElementById("chartContainer");
             const button = document.getElementById("runBtn");
 
             // Reset UI
             errorDiv.style.display = 'none';
             errorDiv.innerText = "";
             tableContainer.innerHTML = "";
+            vizControls.style.display = 'none';
+            chartContainer.style.display = 'none';
+            currentThreadId = null;
 
             if (!query.trim()) {
                 showError("Please enter a query first.");
@@ -66,24 +84,26 @@
                 });
 
                 const data = await response.json();
+
                 if (data.plan == "INVALID") {
                     showError("It seems like your query is not valid. Please provide a valid natural language query.");
-                }
-                else if (data.plan == "INCOMPLETE") {
+                } else if (data.plan == "INCOMPLETE") {
                     showError("Please provide more information about the query.");
-                }
-                else if (data.plan == "UNSAFE") {
+                } else if (data.plan == "UNSAFE") {
                     showError("It seems like you are trying to change the data. Please provide only READ queries.");
-                }
-
-                else if (data.error) {
+                } else if (data.error) {
                     showError("Please give more information about the query.");
-                }
-
-                else if (!data.result || data.result.length === 0) {
-                    tableContainer.innerHTML = `<div class="empty-state">No results found for that query.<br>Please check is there any spelling mistake in the query.</div>`;
+                } else if (!data.result || data.result.length === 0) {
+                    tableContainer.innerHTML = `<div class="empty-state">No results found for that query.<br>Please check if there is any spelling mistake in the query.</div>`;
                 } else {
+                    // 1. Save the thread_id returned by the backend memory saver
+                    currentThreadId = data.thread_id;
+
+                    // 2. Render the table
                     renderTable(data.result);
+
+                    // 3. Show the Generate Chart button
+                    vizControls.style.display = 'flex';
                 }
 
             } catch (err) {
@@ -91,6 +111,57 @@
                 showError("Failed to connect to the AI API. Is the server running?");
             } finally {
                 // Reset Button
+                button.innerHTML = originalText;
+                button.classList.remove("loading");
+                button.disabled = false;
+            }
+        }
+
+        async function generateChart() {
+            const button = document.getElementById("vizBtn");
+            const chartContainer = document.getElementById("chartContainer");
+            const errorDiv = document.getElementById("error");
+
+            if (!currentThreadId) {
+                showError("No active session found. Please run a query first.");
+                return;
+            }
+
+            errorDiv.style.display = 'none';
+
+            // Loading State
+            const originalText = button.innerHTML;
+            button.innerHTML = "<span>Loading ...</span>";
+            button.classList.add("loading");
+            button.disabled = true;
+
+            try {
+                // Call the visualization endpoint passing ONLY the thread_id
+                const response = await fetch("http://127.0.0.1:8000/ai/visualize", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ thread_id: currentThreadId })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.plotly_config) {
+                    throw new Error(data.detail || "Failed to generate chart configuration.");
+                }
+
+                // Show the container and render the Plotly chart
+                chartContainer.style.display = 'block';
+                Plotly.newPlot(
+                    'chartContainer',
+                    data.plotly_config.data,
+                    data.plotly_config.layout,
+                    { responsive: true }
+                );
+
+            } catch (err) {
+                console.error(err);
+                showError(err.message || "Failed to generate the chart. Please try again.");
+            } finally {
                 button.innerHTML = originalText;
                 button.classList.remove("loading");
                 button.disabled = false;
@@ -113,7 +184,7 @@
             const headerRow = document.createElement("tr");
             headers.forEach(header => {
                 const th = document.createElement("th");
-                th.innerText = header.replace(/_/g, ' ').toUpperCase(); // Format headers nicely
+                th.innerText = header.replace(/_/g, ' ').toUpperCase();
                 headerRow.appendChild(th);
             });
             thead.appendChild(headerRow);
@@ -132,7 +203,6 @@
             table.appendChild(thead);
             table.appendChild(tbody);
 
-            // Append to container
             const container = document.getElementById("tableContainer");
             container.appendChild(table);
         }

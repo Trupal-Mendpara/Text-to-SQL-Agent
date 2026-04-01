@@ -1,19 +1,16 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from app.api.query import query_router
+from app.api.visualize import visualize_router
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="Text-to-SQL")
 
+app.mount("/static", StaticFiles(directory="app\static"), name= "static")
+
 app.include_router(query_router)
+app.include_router(visualize_router)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@app.get("/", description="Health check")
-def health():
-    return {"status": "running"}
+@app.get("/")
+def serve_homepage():
+    return FileResponse("app\static\index.html")

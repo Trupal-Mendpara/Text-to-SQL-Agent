@@ -1,6 +1,7 @@
-from app.workflows.state import TextToSQL
+from app.workflows.sql_workflow.sql_state import sql_state
+from langgraph.graph import END
 
-def validate_query(state: TextToSQL) -> TextToSQL:
+def validate_query(state: sql_state) -> sql_state:
     plan = state["plan"].strip()
     if plan == "INVALID":
         return END
@@ -11,7 +12,7 @@ def validate_query(state: TextToSQL) -> TextToSQL:
     else:
         return "SQL Generator"
 
-def error_handler(state: TextToSQL) -> TextToSQL:
+def error_handler(state: sql_state) -> sql_state:
     error = state["error"]
     if error and state["retry"] <= 2:
         return "SQL Generator"

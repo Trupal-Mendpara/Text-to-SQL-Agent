@@ -1,6 +1,6 @@
 from typing import TypedDict, Optional, List, Dict, Any
 
-class TextToSQL(TypedDict):
+class sql_state(TypedDict):
     query: str
     schema: Optional[str]
     sql: Optional[str]

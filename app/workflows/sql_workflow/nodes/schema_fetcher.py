@@ -1,8 +1,8 @@
 from sqlalchemy import text
 from app.db.database import engine
-from app.workflows.state import TextToSQL
+from app.workflows.sql_workflow.sql_state import sql_state
 
-def schema_fetcher(state : TextToSQL) -> TextToSQL:
+def schema_fetcher(state : sql_state) -> sql_state:
     schema_lines = ["Tables:"]
     try:
         with engine.connect() as conn:

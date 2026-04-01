@@ -143,7 +143,6 @@ button.loading {
 .table-wrapper {
     margin-top: 30px;
     overflow-x: auto;
-    /* Handles wide tables on small screens */
     border-radius: 8px;
     border: 1px solid #e5e7eb;
 }
@@ -182,4 +181,36 @@ tr:last-child td {
 
 tbody tr:hover {
     background-color: #f9fafb;
+}
+
+/* --- Visualization Additions --- */
+
+.viz-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.btn-secondary {
+    background-color: #10b981;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #059669;
+}
+
+.btn-secondary.loading {
+    background-color: #9ca3af;
+}
+
+.chart-wrapper {
+    margin-top: 24px;
+    padding: 16px;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    min-height: 400px;
+    width: 100%;
 }

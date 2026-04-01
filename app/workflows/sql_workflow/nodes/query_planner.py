@@ -1,8 +1,8 @@
-from app.workflows.state import TextToSQL
+from app.workflows.sql_workflow.sql_state import sql_state
 from app.workflows.llm import llm_sql_planner
 from langchain_core.prompts import PromptTemplate
 
-def query_planner(state: TextToSQL) -> TextToSQL:
+def query_planner(state: sql_state) -> sql_state:
     schema = state["schema"]
     query = state["query"]
     
