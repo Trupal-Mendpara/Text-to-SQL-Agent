@@ -26,13 +26,9 @@ def generate_visualization(state: VisualizeRequest):
     result = viz_graph.invoke(incoming_viz_state, config=config)
     
     plotly_config = result.get("plotly_config")
-    
-    if not plotly_config:
-        raise HTTPException(
-            status_code=500, 
-            detail="The AI failed to generate the chart configuration. Please check backend logs."
-        )
+    chart_type = result.get("chart_type")
 
     return {
-        "plotly_config": plotly_config
+        "plotly_config": plotly_config,
+        "chart_type": chart_type
     }

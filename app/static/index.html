@@ -7,7 +7,7 @@
     <title>Text to SQL Agent — AI-Powered Database Insights</title>
     <meta name="description"
         content="Query your database using natural language. Get instant SQL results and visual charts powered by AI.">
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/style.css?v=4">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -23,102 +23,154 @@
             <p class="subtitle">Get insights about your data in Natural Language.</p>
         </header>
 
-        <div class="db-section">
-            <p style="margin-bottom: 24px; font-size: 1.1rem; text-align: center;">
-                <strong>Provide Database Connection Details</strong>
-            </p>
+        <div class="connection-card">
+            <div class="db-section">
+                <p style="margin-bottom: 24px; font-size: 1.1rem; text-align: center;">
+                    <strong>Provide Database Connection Details</strong>
+                </p><br>
 
-            <div class="credentials-grid">
-                <div class="form-group">
-                    <label for="db_type">Database Type</label>
-                    <input type="text" id="db_type" placeholder="e.g., postgresql" value="postgresql">
-                </div>
-
-                <div class="form-group">
-                    <label for="db_name">Database Name</label>
-                    <input type="text" id="db_name" placeholder="Name of the database">
-                </div>
-
-                <div class="form-group">
-                    <label for="db_user">Database User</label>
-                    <input type="text" id="db_user" placeholder="Username">
-                </div>
-
-                <div class="form-group">
-                    <label for="db_password">Database Password</label>
-                    <input type="password" id="db_password" placeholder="Password">
-                </div>
-
-                <div class="form-group">
-                    <label for="db_host">Database Host</label>
-                    <input type="text" id="db_host" placeholder="Host (e.g., localhost)">
-                </div>
-
-                <div class="form-group">
-                    <label for="db_port">Database Port</label>
-                    <input type="text" id="db_port" placeholder="Port" value="5432">
-                </div>
-            </div>
-
-            <div class="divider">OR</div>
-
-            <div class="form-group">
-                <label for="db_url">Direct Database URL</label>
-                <textarea id="db_url" placeholder="Paste full connection string here (e.g., Supabase, Neon)"></textarea>
-            </div>
-
-            <button id="connectDB" class="connect-btn" onclick="connectDB()">Connect Database</button>
-
-            <div id="error" class="error-message"></div>
-
-            <div id="aiWorkspace" style="display: none;">
-                <div class="workspace-card">
-                    <div class="workspace-header">
-                        <span class="workspace-icon">✨</span>
-                        <div>
-                            <h2 class="workspace-title">Ask Your Database</h2>
-                            <p class="workspace-subtitle">Type a query in any language and let AI translate it to SQL
-                            </p>
+                <div class="credentials-grid">
+                    <div class="form-group">
+                        <label>Database Type</label>
+                        <div class="custom-select" id="db_type_wrapper">
+                            <div class="custom-select-trigger" id="db_type_trigger">
+                                <span>PostgreSQL</span>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                            </div>
+                            <div class="custom-select-options">
+                                <div class="custom-select-option selected" data-value="postgresql">PostgreSQL</div>
+                                <div class="custom-select-option" data-value="mysql">MySQL</div>
+                                <div class="custom-select-option" data-value="mongodb">MongoDB</div>
+                            </div>
+                            <input type="hidden" id="db_type" value="postgresql">
                         </div>
                     </div>
 
-                    <textarea id="queryInput"
-                        placeholder="e.g., Show me the top 5 customers by Total Spend..."></textarea>
+                    <div class="form-group">
+                        <label for="db_name">Database Name</label>
+                        <input type="text" id="db_name" placeholder="Name of the database">
+                    </div>
 
-                    <div class="controls">
-                        <button id="runBtn" onclick="runQuery()">
-                            <span>✦ Get Insights</span>
-                        </button>
+                    <div class="form-group">
+                        <label for="db_user">Database User</label>
+                        <input type="text" id="db_user" placeholder="Username">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="db_password">Database Password</label>
+                        <input type="password" id="db_password" placeholder="Password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="db_host">Database Host</label>
+                        <input type="text" id="db_host" placeholder="Host (e.g., localhost)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="db_port">Database Port</label>
+                        <input type="text" id="db_port" placeholder="Port">
                     </div>
                 </div>
 
-                <div id="tableContainer" class="table-wrapper"></div>
+                <div class="divider">OR</div>
 
-                <div id="vizControls" class="viz-controls" style="display: none;">
-                    <button id="vizBtn" onclick="generateChart()" class="btn-secondary">
-                        <span>📊 Generate Chart</span>
-                    </button>
+                <div class="form-group">
+                    <label for="db_url">Direct Database URL</label>
+                    <textarea id="db_url" placeholder="Paste full connection URL here..."></textarea>
                 </div>
 
-                <div id="chartContainer" class="chart-wrapper" style="display: none;"></div>
+                <button id="connectDB" class="connect-btn" onclick="connectDB()">Connect Database</button>
+                <div id="connectionError" class="error-message"></div>
+
+                <div id="aiWorkspace" style="display: none;">
+                    <div class="workspace-card">
+                        <div class="workspace-header">
+                            <span class="workspace-icon">✨</span>
+                            <div>
+                                <h2 class="workspace-title">Ask Your Database</h2>
+                                <p class="workspace-subtitle">Type a query in any language and let AI translate it to
+                                    SQL or NoSQL
+                                </p>
+                            </div>
+                        </div>
+
+                        <textarea id="queryInput"
+                            placeholder="e.g., Show me the top 5 customers by Total Spend..."></textarea>
+
+                        <div class="controls">
+                            <button id="runBtn" onclick="runQuery()">
+                                <span>✦ Get Insights</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="tableContainer" class="table-wrapper" style="display: none;"></div>
+                    <div id="jsonContainer" class="json-wrapper" style="display: none;"></div>
+                    <div id="queryError" class="error-message"></div>
+
+                    <div id="vizControls" class="viz-controls" style="display: none;">
+                        <button id="vizBtn" onclick="generateChart()" class="btn-secondary">
+                            <span>📊 Generate Chart</span>
+                        </button>
+                    </div>
+
+                    <div id="chartContainer" class="chart-wrapper" style="display: none;"></div>
+                    <div id="vizError" class="error-message"></div>
+                </div>
             </div>
         </div>
 
         <script>
+            // --- Custom Select Dropdown ---
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('.custom-select').forEach(select => {
+                    const trigger = select.querySelector('.custom-select-trigger');
+                    const options = select.querySelector('.custom-select-options');
+                    const hiddenInput = select.querySelector('input[type="hidden"]');
+
+                    trigger.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // Close all other dropdowns
+                        document.querySelectorAll('.custom-select.open').forEach(s => {
+                            if (s !== select) s.classList.remove('open');
+                        });
+                        select.classList.toggle('open');
+                    });
+
+                    select.querySelectorAll('.custom-select-option').forEach(option => {
+                        option.addEventListener('click', () => {
+                            trigger.querySelector('span').textContent = option.textContent;
+                            hiddenInput.value = option.dataset.value;
+                            select.querySelectorAll('.custom-select-option').forEach(o => o.classList.remove('selected'));
+                            option.classList.add('selected');
+                            select.classList.remove('open');
+                        });
+                    });
+                });
+
+                document.addEventListener('click', () => {
+                    document.querySelectorAll('.custom-select.open').forEach(s => s.classList.remove('open'));
+                });
+            });
+
             // --- THE MEMORY VAULT ---
             let secureDbUrl = null;
             let currentThreadId = null;
+            let database = null;
 
             async function connectDB() {
-                const errorDiv = document.getElementById("error");
+                const errorDiv = document.getElementById("connectionError");
                 errorDiv.style.display = 'none';
 
-                const db_type = document.getElementById("db_type").value || "postgresql";
+                const db_type = document.getElementById("db_type").value;
                 const db_name = document.getElementById("db_name").value || null;
                 const db_user = document.getElementById("db_user").value || null;
                 const db_password = document.getElementById("db_password").value || null;
                 const db_host = document.getElementById("db_host").value || null;
-                const db_port = parseInt(document.getElementById("db_port").value) || 5432;
+                const db_port = parseInt(document.getElementById("db_port").value) || null;
                 const db_url = document.getElementById("db_url").value || null;
 
                 const btn = document.getElementById("connectDB");
@@ -140,21 +192,13 @@
                     }
 
                     secureDbUrl = data.validated_url;
+                    database = data.database;
 
-                    // Show success
-                    errorDiv.innerText = "✅ Database connected successfully!";
-                    errorDiv.style.color = "var(--success-text)";
-                    errorDiv.style.backgroundColor = "var(--success-bg)";
-                    errorDiv.style.borderColor = "var(--success-border)";
-                    errorDiv.style.display = 'block';
-
+                    showSuccess("connectionError", "✅ Database connected successfully!");
                     document.getElementById("aiWorkspace").style.display = "block";
 
                 } catch (err) {
-                    errorDiv.style.color = "var(--error-text)";
-                    errorDiv.style.backgroundColor = "var(--error-bg)";
-                    errorDiv.style.borderColor = "var(--error-border)";
-                    showError(err.message);
+                    showError("connectionError", err.message);
                 } finally {
                     btn.innerHTML = originalText;
                     btn.classList.remove("loading");
@@ -163,25 +207,31 @@
 
             async function runQuery() {
                 const query = document.getElementById("queryInput").value;
-                const errorDiv = document.getElementById("error");
                 const tableContainer = document.getElementById("tableContainer");
+                const jsonContainer = document.getElementById("jsonContainer");
                 const vizControls = document.getElementById("vizControls");
                 const chartContainer = document.getElementById("chartContainer");
                 const button = document.getElementById("runBtn");
 
                 if (!secureDbUrl) {
-                    showError("Please connect your database first!");
+                    showError("queryError", "Please connect your database first!");
                     return;
                 }
 
-                errorDiv.style.display = 'none';
+                hideError("queryError");
+                hideError("vizError");
+
+                // Clear and hide all displays on new run
                 tableContainer.innerHTML = "";
+                tableContainer.style.display = "none";
+                jsonContainer.innerHTML = "";
+                jsonContainer.style.display = "none";
                 vizControls.style.display = 'none';
                 chartContainer.style.display = 'none';
                 currentThreadId = null;
 
                 if (!query.trim()) {
-                    showError("Please enter a query first.");
+                    showError("queryError", "Please enter a query first.");
                     return;
                 }
 
@@ -197,6 +247,7 @@
                         body: JSON.stringify({
                             query: query,
                             db_url: secureDbUrl,
+                            db_type: database,
                             thread_id: "user_session_1"
                         })
                     });
@@ -204,24 +255,32 @@
                     const data = await response.json();
 
                     if (data.plan == "INVALID") {
-                        showError("It seems like your query is not valid. Please provide a valid natural language query.");
+                        showError("queryError", "It seems like your query is not valid. Please provide a valid natural language query.");
                     } else if (data.plan == "INCOMPLETE") {
-                        showError("Please provide more information about the query.");
+                        showError("queryError", "Please provide more information about the query.");
                     } else if (data.plan == "UNSAFE") {
-                        showError("It seems like you are trying to change the data. Please provide only READ queries.");
+                        showError("queryError", "It seems like you are trying to change the data. Please provide only READ queries.");
                     } else if (data.error) {
-                        showError("Please give more information about the query: " + data.error);
-                    } else if (!data.result || data.result.length === 0) {
+                        showError("queryError", "Please give more information about the query: " + data.error);
+                    } else if (!data.result || data.result.length === 0 || data.result === "[]") {
                         tableContainer.innerHTML = `<div class="empty-state">No results found for that query.<br>Please check if there is any spelling mistake in the query.</div>`;
+                        tableContainer.style.display = "block";
                     } else {
                         currentThreadId = data.thread_id;
-                        renderTable(data.result);
+
+                        // Database routing logic
+                        if (database === "mongodb") {
+                            renderJson(data.result);
+                        } else {
+                            renderTable(data.result);
+                            tableContainer.style.display = "block";
+                        }
                         vizControls.style.display = 'flex';
                     }
 
                 } catch (err) {
                     console.error(err);
-                    showError("Failed to connect to the AI API. Is the server running?");
+                    showError("queryError", "Failed to connect to the AI API. Is the server running?");
                 } finally {
                     button.innerHTML = originalText;
                     button.classList.remove("loading");
@@ -232,14 +291,13 @@
             async function generateChart() {
                 const button = document.getElementById("vizBtn");
                 const chartContainer = document.getElementById("chartContainer");
-                const errorDiv = document.getElementById("error");
 
                 if (!currentThreadId) {
-                    showError("No active session found. Please run a query first.");
+                    showError("vizError", "No active session found. Please run a query first.");
                     return;
                 }
 
-                errorDiv.style.display = 'none';
+                hideError("vizError");
                 const originalText = button.innerHTML;
                 button.innerHTML = "<span>Loading ...</span>";
                 button.classList.add("loading");
@@ -254,21 +312,25 @@
 
                     const data = await response.json();
 
-                    if (!response.ok || !data.plotly_config) {
+                    if (data.chart_type === "none") {
+                        showError("vizError", "The data is not suitable for visualization.");
+                    }
+                    else if (!response.ok || !data.plotly_config) {
                         throw new Error(data.detail || "Failed to generate chart configuration.");
                     }
 
-                    chartContainer.style.display = 'block';
-                    Plotly.newPlot(
-                        'chartContainer',
-                        data.plotly_config.data,
-                        { ...data.plotly_config.layout, font: { family: 'Inter, sans-serif' } },
-                        { responsive: true }
-                    );
-
+                    else {
+                        chartContainer.style.display = 'block';
+                        Plotly.newPlot(
+                            'chartContainer',
+                            data.plotly_config.data,
+                            { ...data.plotly_config.layout, font: { family: 'Inter, sans-serif' } },
+                            { responsive: true }
+                        );
+                    }
                 } catch (err) {
                     console.error(err);
-                    showError(err.message || "Failed to generate the chart. Please try again.");
+                    showError("vizError", err.message || "Failed to generate the chart. Please try again.");
                 } finally {
                     button.innerHTML = originalText;
                     button.classList.remove("loading");
@@ -276,8 +338,8 @@
                 }
             }
 
-            function showError(msg) {
-                const errorDiv = document.getElementById("error");
+            function showError(divId, msg) {
+                const errorDiv = document.getElementById(divId);
                 errorDiv.innerText = msg;
                 errorDiv.style.color = "var(--error-text)";
                 errorDiv.style.backgroundColor = "var(--error-bg)";
@@ -285,7 +347,23 @@
                 errorDiv.style.display = 'block';
             }
 
+            function showSuccess(divId, msg) {
+                const div = document.getElementById(divId);
+                div.innerText = msg;
+                div.style.color = "var(--success-text)";
+                div.style.backgroundColor = "var(--success-bg)";
+                div.style.borderColor = "var(--success-border)";
+                div.style.display = 'block';
+            }
+
+            function hideError(divId) {
+                document.getElementById(divId).style.display = 'none';
+            }
+
             function renderTable(data) {
+                const tableContainer = document.getElementById("tableContainer");
+                tableContainer.innerHTML = ""; // Clear existing table
+
                 const table = document.createElement("table");
                 const thead = document.createElement("thead");
                 const tbody = document.createElement("tbody");
@@ -312,7 +390,29 @@
 
                 table.appendChild(thead);
                 table.appendChild(tbody);
-                document.getElementById("tableContainer").appendChild(table);
+                tableContainer.appendChild(table);
+            }
+
+            function renderJson(data) {
+                const container = document.getElementById("jsonContainer");
+                let parsedData;
+
+                // The MongoDB backend sends a stringified JSON. We parse it back into an object first.
+                if (typeof data === 'string') {
+                    try {
+                        parsedData = JSON.parse(data);
+                    } catch (e) {
+                        parsedData = data;
+                    }
+                } else {
+                    parsedData = data;
+                }
+
+                // JSON.stringify with (null, 4) adds beautiful 4-space indentation!
+                const formattedJson = JSON.stringify(parsedData, null, 4);
+
+                container.innerHTML = `<pre>${formattedJson}</pre>`;
+                container.style.display = "block";
             }
         </script>
     </div>

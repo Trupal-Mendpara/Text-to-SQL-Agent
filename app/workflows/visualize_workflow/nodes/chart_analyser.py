@@ -6,7 +6,7 @@ from app.workflows.llm import llm_sql_planner
 from langchain_core.prompts import PromptTemplate
 
 class ChartDecision(BaseModel):
-    chart_type: Literal["bar", "line", "pie", "scatter", "multi_bar", "area", "histogram", "heatmap"] = Field(
+    chart_type: Literal["bar", "line", "pie", "scatter", "multi_bar", "area", "histogram", "heatmap", "none"] = Field(
         description="The chosen chart type based on the data and query."
     )
 
@@ -20,6 +20,15 @@ def chart_analyser(state : visualize_state) -> visualize_state:
     if not data:
         state["chart_type"] = "none"    
         return state
+
+    # Handle MongoDB string results
+    if isinstance(data, str):
+        import json
+        try:
+            data = json.loads(data)
+        except (json.JSONDecodeError, TypeError):
+            state["chart_type"] = "none"
+            return state
 
     sample_data = data[:5]
     total_rows = len(data)
@@ -36,6 +45,7 @@ def chart_analyser(state : visualize_state) -> visualize_state:
         DATA SAMPLE: {sample_data}
 
         DECISION RULES:
+        - 'none': If the data is not suitable for visualization or there is no data or only one row.
         - 'line': Use for trends over time/dates.
         - 'area': Use for cumulative totals or showing volume trends over time.
         - 'pie': Use for parts-of-a-whole or percentages (ONLY if total rows <= 10).
@@ -55,7 +65,7 @@ def chart_analyser(state : visualize_state) -> visualize_state:
         decision = chain.invoke({
             "query": query, 
             "total_rows": total_rows, 
-            "sample_data": sample_data
+            "sample_data": sample_data,
         })
 
         state["chart_type"] = decision.get("chart_type", "bar")

@@ -9,3 +9,5 @@ langchain-huggingface
 langchain-ollama
 langchain-groq
 langgraph-cli[inmem]
+pymysql
+pymongo

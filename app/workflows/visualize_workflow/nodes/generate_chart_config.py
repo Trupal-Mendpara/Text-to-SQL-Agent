@@ -29,6 +29,15 @@ def generate_chart_config(state: visualize_state) -> visualize_state:
         state["plotly_config"] = None
         return state
 
+    # Handle MongoDB string results
+    if isinstance(raw_results, str):
+        import json
+        try:
+            raw_results = json.loads(raw_results)
+        except (json.JSONDecodeError, TypeError):
+            state["plotly_config"] = None
+            return state
+
     clean_results = []
     for row in raw_results:
         clean_row = {k: float(v) if isinstance(v, Decimal) else v for k, v in row.items()}
@@ -41,7 +50,7 @@ def generate_chart_config(state: visualize_state) -> visualize_state:
         You are an expert Plotly.js configuration generator.
         The system has analyzed the data and decided that a '{chart_type}' chart is the absolute best visualization for this request.
 
-        Your task is to map the DATASET below into a valid Plotly JSON object.
+        Your task is to map the DATASET below into a valid Plotly JSON object
 
         STRICT PLOTLY MAPPING RULES FOR '{chart_type}':
         - If 'pie': You MUST use 'labels' for the category array and 'values' for the numbers array. Do NOT use x and y.
