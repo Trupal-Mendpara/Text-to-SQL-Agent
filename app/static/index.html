@@ -124,7 +124,7 @@
         </div>
 
         <script>
-            // --- Custom Select Dropdown ---
+
             document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.custom-select').forEach(select => {
                     const trigger = select.querySelector('.custom-select-trigger');
@@ -133,11 +133,10 @@
 
                     trigger.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        // Close all other dropdowns
                         document.querySelectorAll('.custom-select.open').forEach(s => {
                             if (s !== select) s.classList.remove('open');
                         });
-                        select.classList.toggle('open');
+                        select.classList.toggle('open')
                     });
 
                     select.querySelectorAll('.custom-select-option').forEach(option => {
@@ -179,7 +178,7 @@
                 btn.classList.add("loading");
 
                 try {
-                    const response = await fetch("http://127.0.0.1:8000/ai/connect-db", {
+                    const response = await fetch("/ai/connect-db", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ db_type, db_name, db_user, db_password, db_host, db_port, db_url })
@@ -221,7 +220,6 @@
                 hideError("queryError");
                 hideError("vizError");
 
-                // Clear and hide all displays on new run
                 tableContainer.innerHTML = "";
                 tableContainer.style.display = "none";
                 jsonContainer.innerHTML = "";
@@ -241,7 +239,7 @@
                 button.disabled = true;
 
                 try {
-                    const response = await fetch("http://127.0.0.1:8000/ai/query", {
+                    const response = await fetch("/ai/query", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
@@ -268,7 +266,6 @@
                     } else {
                         currentThreadId = data.thread_id;
 
-                        // Database routing logic
                         if (database === "mongodb") {
                             renderJson(data.result);
                         } else {
@@ -304,7 +301,7 @@
                 button.disabled = true;
 
                 try {
-                    const response = await fetch("http://127.0.0.1:8000/ai/visualize", {
+                    const response = await fetch("/ai/visualize", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ thread_id: currentThreadId })
@@ -362,7 +359,7 @@
 
             function renderTable(data) {
                 const tableContainer = document.getElementById("tableContainer");
-                tableContainer.innerHTML = ""; // Clear existing table
+                tableContainer.innerHTML = "";
 
                 const table = document.createElement("table");
                 const thead = document.createElement("thead");
@@ -397,7 +394,6 @@
                 const container = document.getElementById("jsonContainer");
                 let parsedData;
 
-                // The MongoDB backend sends a stringified JSON. We parse it back into an object first.
                 if (typeof data === 'string') {
                     try {
                         parsedData = JSON.parse(data);
@@ -408,7 +404,6 @@
                     parsedData = data;
                 }
 
-                // JSON.stringify with (null, 4) adds beautiful 4-space indentation!
                 const formattedJson = JSON.stringify(parsedData, null, 4);
 
                 container.innerHTML = `<pre>${formattedJson}</pre>`;
