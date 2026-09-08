@@ -40,4 +40,4 @@ curl -X POST "http://localhost:8000/query" \
   -d '{"question": "What are the top 5 customers by total order value?"}'
 
 ## Author
-Trupal Mendpara — developed during an internship at Kartum Infotech.
+Trupal Mendpara
